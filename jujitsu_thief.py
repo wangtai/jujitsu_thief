@@ -21,6 +21,7 @@ cookies = {'PHPSESSID': 'qas0pb48pgkdgh6v6hshj9o094'}
 
 
 def get_video_url(url):
+    # print url
     r = requests.get(url=url, cookies=cookies)
 
     urls = []
@@ -39,6 +40,7 @@ class HTML(HTMLParser):
         HTMLParser.__init__(self)
 
         self.in_h2 = False
+        self.url_list=[]
 
     def handle_starttag(self, tag, attrs):
         if tag == 'h2' and ('class', 'titulo') in attrs:
@@ -51,10 +53,19 @@ class HTML(HTMLParser):
 
 
 if __name__ == '__main__':
+    all_page_url = []
     for i in range(6):
+        # print 'https://www.artofjiujitsu.com/online-training-program/filter/?&page={0}'.format(i + 1)
         r = requests.get(url='https://www.artofjiujitsu.com/online-training-program/filter/?&page={0}'.format(i + 1),
                          cookies=cookies)
         parser = HTML()
         parser.feed(r.text)
-        for url in parser.url_list:
-            get_video_url(url)
+        print parser.url_list
+        all_page_url.extend(parser.url_list)
+        # for url in parser.url_list:
+        #     get_video_url(url)
+
+    all_page_url = list(set(all_page_url))
+
+    for page_url in all_page_url:
+        get_video_url(page_url)
